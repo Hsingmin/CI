@@ -106,6 +106,67 @@ def topMatches(prefs, person, n = 5, similarity = sim_another_pearson):
 	return scores[0:n]
 
 
+def getRecommendations(prefs, person, similarity = sim_another_pearson):
+	totals = {}
+	simSums = {}
+	for other in prefs:
+		if other == person:
+			continue
+		sim = similarity(prefs, person, other)
+
+		if sim <= 0:
+			continue
+		for item in prefs[other]:
+			# only consider those films not watched by myself
+			if item not in prefs[person] or prefs[person][item] == 0:
+				totals.setdefault(item, 0)
+				totals[item] += prefs[other][item] * sim
+
+				simSums.setdefault(item, 0)
+				simSums[item] += sim
+	
+	rankings = [(total/simSums[item], item) for item, total in totals.items()]
+
+	rankings.sort()
+	rankings.reverse()
+	return rankings
+
+# transform preference 
+def transformPrefs(prefs):
+	result = {}
+	for person in prefs:
+		for item in prefs[person]:
+			result.setdefault(item, {})
+
+			# switch items and person
+			result[item][person] = prefs[person][item]
+	return result
+
+# user-based collaborative filtering
+
+def calculateSimilarItems(prefs, n = 10):
+	result = {}
+
+	# get prefs.T item-based 
+	itemPrefs = transformPrefs(prefs)
+	c = 0
+	for item in itemPrefs:
+
+		# show procedures of creating dataset
+		c += 1
+		if c%100 == 0:
+			print("%d / %d" % (c, len(itemPrefs)))
+
+		scores = topMatches(itemPrefs, item, n = n, similarity = sim_distance)
+		result[item] = scores
+	return result
+
+# item-based collaborative filtering
+
+
+
+
+			
 
 
 
