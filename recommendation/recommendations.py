@@ -142,7 +142,7 @@ def transformPrefs(prefs):
 			result[item][person] = prefs[person][item]
 	return result
 
-# user-based collaborative filtering
+# item-based collaborative filtering
 
 def calculateSimilarItems(prefs, n = 10):
 	result = {}
@@ -161,7 +161,44 @@ def calculateSimilarItems(prefs, n = 10):
 		result[item] = scores
 	return result
 
-# item-based collaborative filtering
+# get recommended items
+
+def getRecommendedItems(prefs, itemMatch, user):
+	userRatings = prefs[user]
+	scores = {}
+	totalSim = {}
+
+	# traverse user's items
+	for (item, rating) in userRatings.items():
+		for (similarity, item2) in itemMatch[item]:
+			if item2 in userRatings:
+				continue
+
+			scores.setdefault(item2, 0)
+			scores[item2] += similarity * rating
+
+			totalSim.setdefault(item2, 0)
+			totalSim[item2] += similarity
+	
+	rankings = [[score/totalSim[item], item] for item, score in scores.items()]
+
+	rankings.sort()
+	rankings.reverse()
+	return rankings
+
+def loadMovieLens(path = './data/movielens'):
+	movies = {}
+	for line in open(path + '/u.item'):
+		(id, title) = line.split('|')[0:2]
+		movies[id] = title
+	
+	prefs = {}
+	for line in open(path + '/u.data'):
+		(user, movieid, rating, ts) = line.split('\t')
+		prefs.setdefault(user, {})
+		prefs[user][movies[movieid]] = float(rating)
+	
+	return prefs
 
 
 
