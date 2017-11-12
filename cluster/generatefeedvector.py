@@ -16,10 +16,10 @@ def getwordcounts(url):
 		else:
 			summary = e.description
 
-	words = getwords(e.title + ' ' + summary)
-	for word in words:
-		wc.setdefault(word, 0)
-		wc[word] += 1
+		words = getwords(e.title + ' ' + summary)
+		for word in words:
+			wc.setdefault(word, 0)
+			wc[word] += 1
 	
 	return d.feed.title, wc
 
@@ -37,16 +37,42 @@ def getwords(html):
 
 apcount = {}
 wordcounts = {}
-feedlist = [line in file('feedlist.txt')]
+feedlist = [line for line in open('feedlist.txt')]
 for feedurl in feedlist:
-	title, wc = getwordcouts(feedurl)
+	title, wc = getwordcounts(feedurl)
 	wordcounts[title] = wc
 	for word, count in wc.items():
 		apcount.setdefault(word, 0)
 		if count > 1:
 			apcount[word] += 1
 
-			
+
+# limit word frequency
+
+wordlist = []
+for w, bc in apcount.items():
+	frac = float(bc) / len(feedlist)
+	if frac > 0.1 and frac < 0.5:
+		wordlist.append(w)
+
+out = file('blogdata.txt', 'w')
+out.write('Blog')
+
+# key word
+for word in wordlist:
+	out.write('\t%s' % word)
+out.write('\n')
+# 
+for blog, wc in wordcounts.items():
+	out.write(blog)
+	for word in wc:
+		out.write('\t%d' % wc[word])
+	else:
+		out.write('\t0')
+	out.write('\n')
+
+	
+		
 
 
 
