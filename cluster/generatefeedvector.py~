@@ -16,10 +16,10 @@ def getwordcounts(url):
 		else:
 			summary = e.description
 
-	words = getwords(e.title + ' ' + summary)
-	for word in words:
-		wc.setdefault(word, 0)
-		wc[word] += 1
+		words = getwords(e.title + ' ' + summary)
+		for word in words:
+			wc.setdefault(word, 0)
+			wc[word] += 1
 	
 	return d.feed.title, wc
 
