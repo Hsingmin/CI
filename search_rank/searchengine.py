@@ -113,6 +113,28 @@ class crawler:
 		self.con.execute('create index urlfromidx on link(fromid)')
 		self.dbcommit()
 
+	def calculatepagerank(self, iterations = 20):
+		# clear current pagerank table
+		self.con.execute('drop table if exists pagerank')
+		self.con.execute('create table pagerank(urlid primary key, score)')
+
+		# initialize each url'pagerank value to 1.0
+		self.con.execute('insert into pagerank select rowid, 1.0 from urllist')
+		self.dbcommit()
+		
+		for i in range(iterations):
+			print('Iteration %d' % (i))
+			for (urlid, ) in self.con.execute('select rowid from urllist'):
+				pr = 0.15
+
+				for (linker, ) in self.con.execute('select distinct fromid from link where toid=%d' % urlid):
+					linkingpr = self.con.execute('select score from pagerank where urlid=%d' % linker).fetchone()[0]
+
+					linkingcount = self.con.execute('select count(*) from link where fromid=%d' % linker).fetchone()[0]
+					pr += 0.85*(linkingpr/linkingcount)
+				self.con.execute('update pagerank set score=%f where urlid=%d' % (pr, urlid))
+			self.dbcommit()
+				
 class searcher:
 	def __init__(self, dbname):
 		self.con = sqlite3.connect(dbname)
@@ -156,8 +178,14 @@ class searcher:
 		# weights function
 		# weights = [(1.0, self.frequencyscore(rows))]
 		weights = [(1.0, self.frequencyscore(rows)),\
-				(1.5, self.locationscore(rows))]
+		 	   (1.0, self.locationscore(rows)),\
+			   (1.0, self.pagerankscore(rows)),\
+			   (1.0, self.linktextscore(rows, wordids))]
 
+		# weights = [(1.0, self.inboundlinkscore(rows))]
+		
+		# weights = [(1.0, self.pagerankscore(rows))]
+		
 		for (weight, scores) in weights:
 			for url in totalscores:
 				totalscores[url] += weight * scores[url]
@@ -214,8 +242,33 @@ class searcher:
 
 		return self.normalizescore(mindistance, smallIsBetter = 1)
 
+	def inboundlinkscore(self, rows):
+		uniqueurls = set([row[0] for row in rows])
+		inboundcount = dict([(u, self.con.execute('select count(*) from link where toid=%d' % u).fetchone()[0]) for u in uniqueurls])
+
+		return self.normalizescores(inboundcount, smallIsBetter = 1)
 
 
+	def pagerankscore(self, rows):
+		pageranks = dict([(row[0], self.con.execute('select score from pagerank where urlid=%d' % row[0]).fetchone()[0]) for row in rows])
+
+		maxrank = max(pageranks.values())
+		normalizedscores = dict([(u, float(1)/maxrank) for (u, l) in pageranks.items()])
+
+		return normalizedscores
+
+	def linktextscore(self, rows, wordids):
+		linkscores = dict([(row[0], 0) for row in rows])
+		for wordid in wordids:
+			cur = self.con.execute('select link.fromid, link.toid from linkwords, link where wordid=%d and linkwords.linkid=link.rowid' % wordid)
+			for (fromid, toid) in cur:
+				if toid in linkscores:
+					pr = self.con.execute('select score from pagerank where urlid=%d' % fromid).fetchone()[0]
+					linkscores[toid] += pr
+
+		maxscore = max(linkscores.values())
+		normalizedscores = dict([(u, float(1)/maxscore) for (u, l) in linkscores.items()])
+		return normalizedscores
 
 
 
