@@ -172,7 +172,7 @@ class searcher:
 		return rows, wordids
 
 	# format query rows into a dict 
-	def getscoredlist(self, rows, wordlist):
+	def getscoredlist(self, rows, wordids):
 		totalscores = dict([(row[0], 0) for row in rows])
 
 		# weights function
