@@ -39,7 +39,7 @@ class searchnet:
 			table = 'wordhidden'
 		else:
 			table = 'hiddenurl'
-		res = self.con.execute('select strength from %s where fromid=%d and toid=%d' % (table, fromid, toid)).fetchone()
+		res = self.con.execute('select rowid from %s where fromid=%d and toid=%d' % (table, fromid, toid)).fetchone()
 		if res == None:
 			self.con.execute('insert into %s (fromid, toid, strength) values (%d, %d, %f)' % (table, fromid, toid, strength))
 		else:
@@ -140,16 +140,16 @@ class searchnet:
 		self.feedforward()
 		targets = [0.0] * len(urlids)
 		targets[urlids.index(selectedurl)] = 1.0
-		self.backPropagate(targets)
+		error = self.backPropagate(targets)
 		self.updatedatabase()
 
 	def updatedatabase(self):
 		for i in range(len(self.wordids)):
 			for j in range(len(self.hiddenids)):
-				self.setstrength(self.wordids[i], self.hiddenids[j], 0, self.wi[i][j])
+				self.setstrength(list(self.wordids)[i], list(self.hiddenids)[j], 0, list(self.wi)[i][j])
 		for j in range(len(self.hiddenids)):
 			for k in range(len(self.urlids)):
-				self.setstrength(self.hiddenids[j], self.urlids[i], 1, self.wo[j][k])
+				self.setstrength(list(self.hiddenids)[j], list(self.urlids)[k], 1, list(self.wo)[j][k])
 
 		self.con.commit()
 

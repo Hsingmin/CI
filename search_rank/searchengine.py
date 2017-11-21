@@ -6,6 +6,9 @@ from urllib.parse import urljoin
 from urllib.parse import urlparse
 import sqlite3
 import re
+import nn
+
+mynet = nn.searchnet('nn.db')
 
 ignorewords = set(['the', 'of', 'to', 'and', 'a', 'in', 'is', 'it'])
 
@@ -202,6 +205,8 @@ class searcher:
 		for (score, urlid) in rankedscores[0:10]:
 			print('%f\t%s' %(score, self.geturlname(urlid)))
 
+		return wordids, [r[1] for r in rankedscores[0:10]]
+
 	
 	def normalizescores(self, scores, smallIsBetter = 0):
 		vsmall = 0.00001 # in case of divided by 0
@@ -269,7 +274,13 @@ class searcher:
 		maxscore = max(linkscores.values())
 		normalizedscores = dict([(u, float(1)/maxscore) for (u, l) in linkscores.items()])
 		return normalizedscores
+	
+	def nnscore(self, rows, wordids):
+		urlids = [urlid for urlid in set([row[0] for row in rows])]
+		nnres = mynet.getresult(wordids, urlids)
+		scores = dict([(urlids[i], nnres[i]) for i in range(len(urlids))])
 
+		return self.normalizescores(scores)
 
 
 
