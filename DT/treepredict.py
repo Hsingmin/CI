@@ -173,6 +173,66 @@ def classify(observation, tree):
 				branch = tree.fb
 			return classify(observation, branch)
 
+def prune(tree, mingain):
+	if tree.tb.results == None:
+		prune(tree.tb, mingain)
+	if tree.fb.results == None:
+		prune(tree.fb, mingain)
+
+	if tree.tb.results != None and tree.fb.results != None:
+		tb, fb = [], []
+		for v, c in tree.tb.results.items():
+			tb += [[v]]*c
+		for v, c in tree.fb.results.items():
+			fb += [[v]]*c
+
+		delta = entropy(tb+fb) - (entropy(tb) + entropy(fb)/2)
+		if delta < mingain:
+			tree.tb, tree.fb = None, None
+			tree.results = uniquecounts(tb + fb)
+
+def mdclassify(observation, tree):
+	if tree.results != None:
+		return tree.results
+	else:
+		v = observation[tree.col]
+		if v == None:
+			tr, fr = mdclassify(observation, tree.tb), mdclassify(observation, tree.fb)
+			tcount = sum(tr.values())
+			fcount = sum(fr.values())
+			tw = float(tcount)/(tcount+fcount)
+			fw = float(fcount)/(tcount+fcount)
+			result = {}
+			for k, v in tr.items():
+				result[k] = v*tw
+			for k, v in fr.items():
+				if k not in result:
+					result[k] = 0
+				result[k] += v*fw
+			return result
+		else:
+			if isinstance(v, int) or isinstance(v, float):
+				if v >= tree.value:
+					branch = tree.tb
+				else:
+					branch = tree.fb
+			else:
+				if v == tree.value:
+					branch = tree.tb
+				else:
+					branch = tree.fb
+			return mdclassify(observation, branch)
+
+def variance(rows):
+	if len(rows) == 0:
+		return 0
+	data = [float(row[len(row)-1]) for row in rows]
+	mean = sum(data)/len(data)
+	variance = sum([(d-mean)**2 for d in data])/len(data)
+
+	return variance
+
+
 
 	
 
