@@ -3,6 +3,8 @@
 
 from random import random, randint
 import math
+import numpy as np 
+from matplotlib import pyplot as plt
 
 weightdomain = [(0, 20)]*4
 
@@ -139,15 +141,54 @@ def createcostfunction(algf, data):
 		return crossvalidate(algf, sdata, trials=10)
 	return costf
 
+def wineset3():
+	rows = wineset1()
+	for row in rows:
+		if random() < 0.5:
+			row['result'] *= 0.5
+	return rows
 
+def probguess(data, vec1, low, high, k=5, weightf=gaussian):
+	dlist = getdistances(data, vec1)
+	nweight = 0.0
+	tweight = 0.0
 
+	for i in range(k):
+		dist = dlist[i][0]
+		idx = dlist[i][1]
+		weight = weightf(dist)
+		v = data[idx]['result']
 
+		if v >= low and v <= high:
+			nweight += weight
+		tweight += weight
+	if tweight == 0:
+		return 0
 
+	return nweight/tweight
 
+def cumulativegraph(data, vec1, high, k=5, weightf=gaussian):
+	t1 = np.arange(0.0, high, 0.1)
+	cprob = np.array([probguess(data, vec1, 0, v, k, weightf) for v in t1])
+	plt.plot(t1, cprob)
+	plt.show()
 
+def probabilitygraph(data, vec1, high, k=5, weightf=gaussian, ss=5.0):
+	t1 = np.arange(0.0, high, 0.1)
+	probs = [probguess(data, vec1, v, v+0.1, k, weightf) for v in t1]
 
-
-
+	smoothed = []
+	for i in np.arange(len(probs)):
+		sv = 0.0
+		for j in range(0, len(probs)):
+			dist = abs(i-j)*0.1
+			weight = gaussian(dist, sigma=ss)
+			sv += weight*probs[j]
+		smoothed.append(sv)
+	smoothed = np.array(smoothed)
+	
+	plt.plot(t1, smoothed)
+	plt.show()
 
 
 
