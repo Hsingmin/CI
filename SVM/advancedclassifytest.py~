@@ -1,0 +1,73 @@
+
+# advancedclassifytest.py
+
+import advancedclassify
+
+agesonly = advancedclassify.loadmatch('agesonly.csv', allnum=True)
+matchmaker = advancedclassify.loadmatch('matchmaker.csv')
+
+numericalset = advancedclassify.loadnumerical()
+scaledset, scalef = advancedclassify.scaledata(numericalset)
+avgs = advancedclassify.lineartrain(scaledset)
+
+ssoffset = advancedclassify.getoffset(scaledset)
+
+print('classify numericalset[0] : ')
+print(numericalset[0].match)
+print(advancedclassify.nlclassify(scalef(numericalset[0].data), scaledset, ssoffset))
+print('------------------------------')
+
+print('classify numericalset[1] : ')
+print(numericalset[1].match)
+print(advancedclassify.nlclassify(scalef(numericalset[1].data), scaledset, ssoffset))
+print('------------------------------')
+
+print('classify numericalset[2] : ')
+print(numericalset[2].match)
+print(advancedclassify.nlclassify(scalef(numericalset[2].data), scaledset, ssoffset))
+print('------------------------------')
+
+print('classify newrow0 : ')
+newrow0 = [28.0, -1, -1, 26.0, -1, 1, 2, 0.8]
+advancedclassify.nlclassify(scalef(newrow0), scaledset, ssoffset)
+print('------------------------------')
+
+print('classify newrow1 : ')
+newrow1 = [28.0, -1, 1, 26.0, -1, 1, 2, 0.8]
+advancedclassify.nlclassify(scalef(newrow1), scaledset, ssoffset)
+print('------------------------------')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
