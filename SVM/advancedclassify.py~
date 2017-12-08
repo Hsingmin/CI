@@ -131,10 +131,9 @@ def scaledata(rows):
 	newrows = [matchrow(scaleinput(row.data)+[row.match]) for row in rows]
 
 	return newrows, scaleinput
-'''
 def veclength(v):
 	return sum((v[i])**2 for i in range(len(v)))
-'''
+
 def rbf(v1, v2, gamma=20):
 	dv = [v1[i]-v2[i] for i in range(len(v1))]
 	l = veclength(dv)

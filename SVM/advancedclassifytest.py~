@@ -29,12 +29,12 @@ print('------------------------------')
 
 print('classify newrow0 : ')
 newrow0 = [28.0, -1, -1, 26.0, -1, 1, 2, 0.8]
-advancedclassify.nlclassify(scalef(newrow0), scaledset, ssoffset)
+print(advancedclassify.nlclassify(scalef(newrow0), scaledset, ssoffset))
 print('------------------------------')
 
 print('classify newrow1 : ')
 newrow1 = [28.0, -1, 1, 26.0, -1, 1, 2, 0.8]
-advancedclassify.nlclassify(scalef(newrow1), scaledset, ssoffset)
+print(advancedclassify.nlclassify(scalef(newrow1), scaledset, ssoffset))
 print('------------------------------')
 
 
