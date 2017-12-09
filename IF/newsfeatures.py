@@ -41,7 +41,42 @@ def separatewords(text):
 	return [s.lower() for s in splitter.split(text) if len(s)>3]
 
 
+def getarticlewords():
+	allwords = {}
+	articlewords = []
+	articletitles = []
+	ec = 0
 
+	# global variable
+	for feed in feedlist:
+		f = feedparser.parse(feed)
+		for e in f.entries:
+			if e.title in articletitles:
+				continue
+
+			txt = e.title.encode('utf8') + stripHTML(e.description.encode('utf-8'))
+			words = separatewords(txt)
+			articlewords.append({})
+			articletitles.append(e.title)
+
+			for word in words:
+				allwords.setdefault(word, 0)
+				allwords[word] += 1
+				articlewords[ec].setdefault(word, 0)
+				articlewords[ec][word] += 1
+			ec += 1
+	return allwords, articlewords, articletitles
+
+The function has three variables:
+
+def makematrix(allw, articlew):
+	wordvec = []
+	for w,c in allw.items():
+		if c>3 and c<len(articlew)*0.6:
+			wordvec.append(w)
+	
+	l1 = [[(word in f and f[word] or 0) for word in wordvec] for f in articlew]
+	return l1, wordvec
 
 
 
