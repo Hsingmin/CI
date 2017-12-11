@@ -9,8 +9,8 @@ feedlist=['http://today.reuters.com/rss/topNews',\
           'http://today.reuters.com/rss/worldNews',\
           'http://hosted.ap.org/lineups/TOPHEADS-rss_2.0.xml',\
           'http://hosted.ap.org/lineups/USHEADS-rss_2.0.xml',\
-          'http://hosted.ap.org/lineups/WORLDHEADS-rss_2.0.xml'\,
-          'http://hosted.ap.org/lineups/POLITICSHEADS-rss_2.0.xml'\,
+          'http://hosted.ap.org/lineups/WORLDHEADS-rss_2.0.xml',\
+          'http://hosted.ap.org/lineups/POLITICSHEADS-rss_2.0.xml',\
           'http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml',\
           'http://www.nytimes.com/services/xml/rss/nyt/International.xml',\
           'http://news.google.com/?output=rss',\
@@ -54,7 +54,7 @@ def getarticlewords():
 			if e.title in articletitles:
 				continue
 
-			txt = e.title.encode('utf8') + stripHTML(e.description.encode('utf-8'))
+			txt = e.title.encode('utf8') + stripHTML(e.description.encode('utf8'))
 			words = separatewords(txt)
 			articlewords.append({})
 			articletitles.append(e.title)
@@ -67,7 +67,7 @@ def getarticlewords():
 			ec += 1
 	return allwords, articlewords, articletitles
 
-The function has three variables:
+#The function has three variables:
 
 def makematrix(allw, articlew):
 	wordvec = []
