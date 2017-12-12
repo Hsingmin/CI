@@ -23,7 +23,7 @@ def factorize(v, pc=10, iter=50):
 		wh = w*h
 		cost = difcost(v, wh)
 		if i%10 == 0:
-			print cost
+			print(cost)
 		if cost == 0:
 			break
 		hn = (transpose(w)*v)
